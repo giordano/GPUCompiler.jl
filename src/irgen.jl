@@ -80,6 +80,12 @@ function irgen(@nospecialize(job::CompilerJob))
     compiled[job.source] =
         (; compiled[job.source].ci, func, specfunc)
 
+    for mi in keys(compiled)
+        mi == job.source && continue
+        ci, func, specfunc = compiled[mi]
+        compiled[mi] = (; ci, func=safe_name(func), specfunc=safe_name(specfunc))
+    end
+
     # minimal required optimization
     @timeit_debug to "rewrite" begin
         if job.config.kernel && needs_byval(job)
